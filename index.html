@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Burak kaç gündür bilgisayar mühendisi?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      margin-top: 1em;
+    }
+
+    /* Büyüyen yazı */
+    #gunSayisiContainer {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      font-size: 2em;
+      font-weight: bold;
+      color: white;
+      z-index: 9999;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* Video */
+    .video-wrapper {
+      margin-top: 30em;
+    }
+
+    video {
+      width: 90%;
+      max-width: 720px;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    /* GRAFİK */
+    #chartContainer {
+      width: 90%;
+      max-width: 800px;
+      margin: 3em auto;
+      background-color: #111;
+      padding: 1em;
+      border-radius: 10px;
+    }
+
+    canvas {
+      background-color: #111;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Burak kaç gündür bilgisayar mühendisi?</h1>
+
+  <div id="gunSayisiContainer">
+    <span id="gunDegeri">...</span> gündür bilgisayar mühendisi
+  </div>
+
+  <div class="video-wrapper">
+    <video controls>
+      <source src="video/aselsan.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- Grafik -->
+  <div id="chartContainer">
+    <canvas id="burakChart"></canvas>
+  </div>
+
+  <script>
+    // Gün sayısını hesapla ve yazıya yaz
+    const baslangicTarihi = new Date("2024-10-30");
+    const bugun = new Date();
+    const gunFarki = Math.floor((bugun - baslangicTarihi) / (1000 * 60 * 60 * 24));
+    document.getElementById("gunDegeri").textContent = gunFarki;
+
+    // Sonsuza büyüme animasyonu
+    let scale = 1;
+    function buyut() {
+      scale += 0.01;
+      document.getElementById("gunSayisiContainer").style.transform =
+        `translate(-50%, -50%) scale(${scale})`;
+      requestAnimationFrame(buyut);
+    }
+    buyut();
+
+    // Grafik verileri
+    const ozelGunler = {
+      0: { color: 'red', label: 'Okula başlama + sisçi burak\'ın doğuşu', style: 'circle' },
+      70: { color: 'pink', label: 'burağın bilgisayar mühendisliğinde 70. günü', style: 'circle' },
+      142: { color: 'blue', label: 'sisi kapatış', style: 'circle' },
+      203: { color: 'green', label: 'asistanlar tarafından sisçi burak diye tanınma', style: 'circle' },
+    };
+
+    const labels = [], data = [];
+    for (let i = 0; i <= gunFarki; i++) {
+      const tarih = new Date(baslangicTarihi);
+      tarih.setDate(tarih.getDate() + i);
+      labels.push(`${tarih.getDate()}.${tarih.getMonth() + 1}`);
+      data.push(i);
+    }
+
+    new Chart(document.getElementById('burakChart'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Geçen Gün Sayısı',
+          data: data,
+          borderColor: 'white',
+          backgroundColor: 'rgba(255,255,255,0.2)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: data.map(val => ozelGunler[val] ? 8 : 0),
+          pointBackgroundColor: data.map(val => ozelGunler[val]?.color || 'white'),
+          pointStyle: data.map(val => ozelGunler[val]?.style || 'circle'),
+          pointBorderColor: data.map(val => ozelGunler[val]?.color || 'transparent')
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: 'white' } },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const ozel = ozelGunler[ctx.raw];
+                return `${ctx.raw} gün` + (ozel ? ` – ${ozel.label}` : '');
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: 'white', autoSkip: true, maxTicksLimit: 15 },
+            grid: { color: '#444' }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: 'white' },
+            grid: { color: '#444' }
+          }
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
